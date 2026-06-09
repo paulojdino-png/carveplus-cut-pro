@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'project_model.dart';
+
 import 'optimization_screen.dart';
 import 'edge_band_part.dart';
 import 'project_settings.dart';
@@ -19,6 +24,45 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
   final qtyController = TextEditingController(text: '1');
 
   final List<EdgeBandPart> parts = [];
+  Future<void> saveProject() async {
+    final projectParts = parts.map((p) {
+      return Part(
+        name: p.name,
+        width: double.tryParse(p.width) ?? 0,
+        height: double.tryParse(p.height) ?? 0,
+        quantity: int.tryParse(p.qty) ?? 1,
+        topEdge: p.top,
+        bottomEdge: p.bottom,
+        leftEdge: p.left,
+        rightEdge: p.right,
+      );
+    }).toList();
+
+    final project = Project(
+      projectName: widget.settings.projectName,
+      material: widget.settings.material,
+      sheetWidth: widget.settings.sheetWidth,
+      sheetLength: widget.settings.sheetLength,
+      thickness: widget.settings.thickness,
+      borderMargin: widget.settings.borderMargin,
+      partSpacing: widget.settings.partSpacing,
+      edgeBandThickness: widget.settings.edgeBandThickness,
+      parts: projectParts,
+    );
+
+    final dir = await getApplicationDocumentsDirectory();
+
+    final file = File('${dir.path}/${project.projectName}.json');
+
+    await file.writeAsString(jsonEncode(project.toJson()));
+    debugPrint('PROJECT SAVED TO: ${file.path}');
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Project Saved')));
+  }
 
   bool topEdge = false;
   bool rightEdge = false;
@@ -118,19 +162,30 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
                     );
                   }),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OptimizationScreen(
-                            parts: parts,
-                            settings: widget.settings,
-                          ),
-                        ),
-                      );
-                    },
-                    child: const Text('Optimize Layout'),
+                  Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: saveProject,
+                        child: const Text('Save Project'),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OptimizationScreen(
+                                parts: parts,
+                                settings: widget.settings,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('Optimize Layout'),
+                      ),
+                    ],
                   ),
                 ],
               ),

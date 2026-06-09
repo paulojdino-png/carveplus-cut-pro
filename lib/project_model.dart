@@ -35,6 +35,32 @@ class Part {
 
     return edges.join(', ');
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'width': width,
+      'height': height,
+      'quantity': quantity,
+      'topEdge': topEdge,
+      'bottomEdge': bottomEdge,
+      'leftEdge': leftEdge,
+      'rightEdge': rightEdge,
+    };
+  }
+
+  factory Part.fromJson(Map<String, dynamic> json) {
+    return Part(
+      name: json['name'],
+      width: (json['width'] as num).toDouble(),
+      height: (json['height'] as num).toDouble(),
+      quantity: json['quantity'],
+      topEdge: json['topEdge'] ?? false,
+      bottomEdge: json['bottomEdge'] ?? false,
+      leftEdge: json['leftEdge'] ?? false,
+      rightEdge: json['rightEdge'] ?? false,
+    );
+  }
 }
 
 class Project {
@@ -65,4 +91,32 @@ class Project {
 
     this.parts = const [],
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'projectName': projectName,
+      'material': material,
+      'sheetWidth': sheetWidth,
+      'sheetLength': sheetLength,
+      'thickness': thickness,
+      'borderMargin': borderMargin,
+      'partSpacing': partSpacing,
+      'edgeBandThickness': edgeBandThickness,
+      'parts': parts.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  factory Project.fromJson(Map<String, dynamic> json) {
+    return Project(
+      projectName: json['projectName'],
+      material: json['material'],
+      sheetWidth: (json['sheetWidth'] as num).toDouble(),
+      sheetLength: (json['sheetLength'] as num).toDouble(),
+      thickness: (json['thickness'] as num).toDouble(),
+      borderMargin: (json['borderMargin'] as num).toDouble(),
+      partSpacing: (json['partSpacing'] as num).toDouble(),
+      edgeBandThickness: (json['edgeBandThickness'] as num).toDouble(),
+      parts: (json['parts'] as List).map((e) => Part.fromJson(e)).toList(),
+    );
+  }
 }
