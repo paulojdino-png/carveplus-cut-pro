@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'project_model.dart';
-
+import 'pdf_export_service.dart';
 import 'optimization_screen.dart';
 import 'edge_band_part.dart';
 import 'project_settings.dart';
@@ -62,6 +62,43 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Project Saved')));
+  }
+
+  Future<void> exportPdf() async {
+    final projectParts = parts.map((p) {
+      return Part(
+        name: p.name,
+        width: double.tryParse(p.width) ?? 0,
+        height: double.tryParse(p.height) ?? 0,
+        quantity: int.tryParse(p.qty) ?? 1,
+        topEdge: p.top,
+        bottomEdge: p.bottom,
+        leftEdge: p.left,
+        rightEdge: p.right,
+      );
+    }).toList();
+
+    final project = Project(
+      projectName: widget.settings.projectName,
+      material: widget.settings.material,
+      sheetWidth: widget.settings.sheetWidth,
+      sheetLength: widget.settings.sheetLength,
+      thickness: widget.settings.thickness,
+      borderMargin: widget.settings.borderMargin,
+      partSpacing: widget.settings.partSpacing,
+      edgeBandThickness: widget.settings.edgeBandThickness,
+      parts: projectParts,
+    );
+
+    final file = await PdfExportService.exportProject(project);
+
+    debugPrint('PDF CREATED: ${file.path}');
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('PDF Exported: ${project.projectName}.pdf')),
+    );
   }
 
   bool topEdge = false;
@@ -167,6 +204,13 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
                       ElevatedButton(
                         onPressed: saveProject,
                         child: const Text('Save Project'),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      ElevatedButton(
+                        onPressed: exportPdf,
+                        child: const Text('Export PDF'),
                       ),
 
                       const SizedBox(height: 12),
