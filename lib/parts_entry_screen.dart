@@ -93,6 +93,7 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
     final file = await PdfExportService.exportProject(project);
 
     debugPrint('PDF CREATED: ${file.path}');
+    debugPrint('PDF SIZE: ${await file.length()} bytes');
 
     if (!mounted) return;
 
