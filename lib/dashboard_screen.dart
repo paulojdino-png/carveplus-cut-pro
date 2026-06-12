@@ -1,8 +1,50 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
+
+import 'project_model.dart';
 import 'new_project_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  Future<void> loadProject() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+
+      final file = File('${dir.path}/test.json');
+
+      if (!await file.exists()) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('test.json not found')));
+        return;
+      }
+
+      final jsonString = await file.readAsString();
+
+      final project = Project.fromJson(jsonDecode(jsonString));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Loaded: ${project.projectName}')));
+
+      debugPrint('PROJECT LOADED: ${project.projectName}');
+    } catch (e) {
+      debugPrint('LOAD ERROR: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +164,23 @@ class DashboardScreen extends StatelessWidget {
 
                   child: const Text(
                     '+ New Project',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+
+                child: ElevatedButton(
+                  onPressed: loadProject,
+
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+
+                  child: const Text(
+                    'Load Project',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
