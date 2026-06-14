@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'edge_band_part.dart';
 import 'project_settings.dart';
 import 'nesting_engine_v3.dart';
+import 'dxf_export_service.dart';
 
 class OptimizationScreen extends StatelessWidget {
   final List<EdgeBandPart> parts;
@@ -101,6 +102,29 @@ class OptimizationScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final file = await DxfExportService.exportLayout(
+                            placedParts,
+                          );
+
+                          debugPrint('DXF CREATED: ${file.path}');
+
+                          if (!context.mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('DXF Export Complete'),
+                            ),
+                          );
+                        },
+                        child: const Text('Export DXF'),
                       ),
                     ),
                     const SizedBox(height: 12),
