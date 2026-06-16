@@ -10,8 +10,13 @@ import 'project_settings.dart';
 
 class PartsEntryScreen extends StatefulWidget {
   final ProjectSettings settings;
+  final List<EdgeBandPart>? initialParts;
 
-  const PartsEntryScreen({super.key, required this.settings});
+  const PartsEntryScreen({
+    super.key,
+    required this.settings,
+    this.initialParts,
+  });
 
   @override
   State<PartsEntryScreen> createState() => _PartsEntryScreenState();
@@ -24,6 +29,15 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
   final qtyController = TextEditingController(text: '1');
 
   final List<EdgeBandPart> parts = [];
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.initialParts != null) {
+      parts.addAll(widget.initialParts!);
+    }
+  }
+
   Future<void> saveProject() async {
     final projectParts = parts.map((p) {
       return Part(

@@ -191,56 +191,49 @@ class NestingEngineV4 {
       bool placed = false;
 
       while (!placed) {
-        SheetBin? targetSheet;
-        FreeRect? node;
+        var node = _findNode(
+          freeRects,
+          part.width + settings.partSpacing,
+          part.height + settings.partSpacing,
+        );
+
         bool rotated = false;
 
-        for (final sheet in sheets) {
-          var candidate = _findNode(
-            sheet.freeRects,
-            part.width + settings.partSpacing,
-            part.height + settings.partSpacing,
-          );
+        final rotatedNode = _findNode(
+          freeRects,
+          part.height + settings.partSpacing,
+          part.width + settings.partSpacing,
+        );
 
-          bool candidateRotated = false;
+        if (node == null && rotatedNode != null) {
+          node = rotatedNode;
+          rotated = true;
+        }
 
-          final rotatedCandidate = _findNode(
-            sheet.freeRects,
-            part.height + settings.partSpacing,
-            part.width + settings.partSpacing,
-          );
+        if (node != null && rotatedNode != null) {
+          final normalWaste = node.width * node.height;
+          final rotatedWaste = rotatedNode.width * rotatedNode.height;
 
-          if (candidate == null && rotatedCandidate != null) {
-            candidate = rotatedCandidate;
-            candidateRotated = true;
-          }
-
-          if (candidate != null) {
-            targetSheet = sheet;
-            node = candidate;
-            rotated = candidateRotated;
-            break;
+          if (rotatedWaste < normalWaste) {
+            node = rotatedNode;
+            rotated = true;
           }
         }
 
-        if (node == null || targetSheet == null) {
-          final newSheet = SheetBin(
-            sheetNumber: sheets.length + 1,
-            freeRects: [
-              FreeRect(
-                x: settings.borderMargin,
-                y: settings.borderMargin,
-                width: settings.sheetWidth - (settings.borderMargin * 2),
-                height: settings.sheetLength - (settings.borderMargin * 2),
-              ),
-            ],
-          );
+        if (node == null) {
+          currentSheet++;
 
-          sheets.add(newSheet);
+          freeRects = [
+            FreeRect(
+              x: settings.borderMargin,
+              y: settings.borderMargin,
+              width: settings.sheetWidth - (settings.borderMargin * 2),
+              height: settings.sheetLength - (settings.borderMargin * 2),
+            ),
+          ];
 
           continue;
         }
-
         if (rotated) {
           final temp = part.width;
           part.width = part.height;
@@ -250,24 +243,20 @@ class NestingEngineV4 {
 
         part.x = node.x;
         part.y = node.y;
-        part.sheet = targetSheet.sheetNumber;
+        part.sheet = currentSheet;
 
         int i = 0;
 
-        while (i < targetSheet.freeRects.length) {
-          if (_splitNode(
-            targetSheet.freeRects,
-            targetSheet.freeRects[i],
-            node,
-          )) {
-            targetSheet.freeRects.removeAt(i);
+        while (i < freeRects.length) {
+          if (_splitNode(freeRects, freeRects[i], node)) {
+            freeRects.removeAt(i);
             i--;
           }
 
           i++;
         }
 
-        _pruneFreeList(targetSheet.freeRects);
+        _pruneFreeList(freeRects);
 
         placed = true;
       }

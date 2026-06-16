@@ -6,6 +6,9 @@ import 'package:path_provider/path_provider.dart';
 
 import 'project_model.dart';
 import 'new_project_screen.dart';
+import 'parts_entry_screen.dart';
+import 'edge_band_part.dart';
+import 'project_settings.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,7 +22,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       final dir = await getApplicationDocumentsDirectory();
 
-      final file = File('${dir.path}/test.json');
+      final file = File('${dir.path}/fortress.json');
 
       if (!await file.exists()) {
         if (!mounted) return;
@@ -33,14 +36,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final jsonString = await file.readAsString();
 
       final project = Project.fromJson(jsonDecode(jsonString));
+      final settings = ProjectSettings(
+        projectName: project.projectName,
+        material: project.material,
+        sheetWidth: project.sheetWidth,
+        sheetLength: project.sheetLength,
+        thickness: project.thickness,
+        borderMargin: project.borderMargin,
+        partSpacing: project.partSpacing,
+        edgeBandThickness: project.edgeBandThickness,
+        allowRotation: true,
+        woodGrain: false,
+      );
+
+      final loadedParts = project.parts.map((p) {
+        return EdgeBandPart(
+          name: p.name,
+          width: p.width.toString(),
+          height: p.height.toString(),
+          qty: p.quantity.toString(),
+          top: p.topEdge,
+          bottom: p.bottomEdge,
+          left: p.leftEdge,
+          right: p.rightEdge,
+        );
+      }).toList();
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
+      Navigator.push(
         context,
-      ).showSnackBar(SnackBar(content: Text('Loaded: ${project.projectName}')));
-
-      debugPrint('PROJECT LOADED: ${project.projectName}');
+        MaterialPageRoute(
+          builder: (_) =>
+              PartsEntryScreen(settings: settings, initialParts: loadedParts),
+        ),
+      );
     } catch (e) {
       debugPrint('LOAD ERROR: $e');
     }
