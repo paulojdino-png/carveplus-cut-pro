@@ -2,8 +2,8 @@ import 'nesting_engine.dart';
 import 'package:flutter/material.dart';
 import 'edge_band_part.dart';
 import 'project_settings.dart';
-import 'nesting_engine_v3.dart';
 import 'dxf_export_service.dart';
+import 'nesting_engine_v4.dart';
 
 class OptimizationScreen extends StatelessWidget {
   final List<EdgeBandPart> parts;
@@ -25,7 +25,7 @@ class OptimizationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final engine = NestingEngineV3(settings);
+    final engine = NestingEngineV4(settings);
 
     final placedParts = engine.optimize(parts);
     for (final p in placedParts) {
