@@ -3,8 +3,10 @@ import 'project_settings.dart';
 
 class PlacementPart {
   final String name;
-  final double width;
-  final double height;
+  double width;
+  double height;
+
+  bool rotated;
 
   double x;
   double y;
@@ -17,6 +19,7 @@ class PlacementPart {
     this.x = 0,
     this.y = 0,
     this.sheet = 1,
+    this.rotated = false,
   });
 }
 

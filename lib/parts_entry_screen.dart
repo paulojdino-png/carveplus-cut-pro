@@ -54,7 +54,13 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
 
     final file = File('${dir.path}/${project.projectName}.json');
 
-    await file.writeAsString(jsonEncode(project.toJson()));
+    final jsonText = jsonEncode(project.toJson());
+
+    await file.writeAsString(jsonText);
+
+    debugPrint('PROJECT JSON:');
+    debugPrint(jsonText);
+    debugPrint(jsonEncode(project.toJson()));
     debugPrint('PROJECT SAVED TO: ${file.path}');
 
     if (!mounted) return;

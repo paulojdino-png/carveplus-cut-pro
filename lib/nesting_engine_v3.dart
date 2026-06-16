@@ -1,6 +1,7 @@
 import 'edge_band_part.dart';
 import 'project_settings.dart';
 import 'nesting_engine.dart';
+import 'package:flutter/foundation.dart';
 
 class FreeRect {
   double x;
@@ -180,11 +181,34 @@ class NestingEngineV3 {
       bool placed = false;
 
       while (!placed) {
-        final node = _findNode(
+        var node = _findNode(
           freeRects,
           part.width + settings.partSpacing,
           part.height + settings.partSpacing,
         );
+
+        bool rotated = false;
+
+        final rotatedNode = _findNode(
+          freeRects,
+          part.height + settings.partSpacing,
+          part.width + settings.partSpacing,
+        );
+
+        if (node == null && rotatedNode != null) {
+          node = rotatedNode;
+          rotated = true;
+        }
+
+        if (node != null && rotatedNode != null) {
+          final normalWaste = node.width * node.height;
+          final rotatedWaste = rotatedNode.width * rotatedNode.height;
+
+          if (rotatedWaste < normalWaste) {
+            node = rotatedNode;
+            rotated = true;
+          }
+        }
 
         if (node == null) {
           currentSheet++;
@@ -199,6 +223,12 @@ class NestingEngineV3 {
           ];
 
           continue;
+        }
+        if (rotated) {
+          final temp = part.width;
+          part.width = part.height;
+          part.height = temp;
+          part.rotated = true;
         }
 
         part.x = node.x;
@@ -220,6 +250,18 @@ class NestingEngineV3 {
 
         placed = true;
       }
+    }
+
+    final sheetCounts = <int, int>{};
+
+    for (final p in expanded) {
+      sheetCounts[p.sheet] = (sheetCounts[p.sheet] ?? 0) + 1;
+    }
+
+    debugPrint('----- SHEET SUMMARY -----');
+
+    for (final entry in sheetCounts.entries) {
+      debugPrint('Sheet ${entry.key}: ${entry.value} parts');
     }
 
     return expanded;
