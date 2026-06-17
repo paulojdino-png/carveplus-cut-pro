@@ -171,7 +171,11 @@ class NestingEngineV4 {
       }
     }
 
-    expanded.sort((a, b) => (b.width * b.height).compareTo(a.width * a.height));
+    expanded.sort(
+      (a, b) => (b.height > b.width ? b.height : b.width).compareTo(
+        a.height > a.width ? a.height : a.width,
+      ),
+    );
 
     final sheets = <SheetBin>[
       SheetBin(
@@ -195,6 +199,8 @@ class NestingEngineV4 {
         FreeRect? node;
         bool rotated = false;
 
+        double bestWaste = double.infinity;
+
         for (final sheet in sheets) {
           var candidate = _findNode(
             sheet.freeRects,
@@ -216,10 +222,15 @@ class NestingEngineV4 {
           }
 
           if (candidate != null) {
-            targetSheet = sheet;
-            node = candidate;
-            rotated = candidateRotated;
-            break;
+            final waste = candidate.width * candidate.height;
+
+            if (waste < bestWaste) {
+              bestWaste = waste;
+
+              targetSheet = sheet;
+              node = candidate;
+              rotated = candidateRotated;
+            }
           }
         }
 

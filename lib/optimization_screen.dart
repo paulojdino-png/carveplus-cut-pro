@@ -106,28 +106,6 @@ class OptimizationScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final file = await DxfExportService.exportLayout(
-                            placedParts,
-                          );
-
-                          debugPrint('DXF CREATED: ${file.path}');
-
-                          if (!context.mounted) return;
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('DXF Export Complete'),
-                            ),
-                          );
-                        },
-                        child: const Text('Export DXF'),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                     AspectRatio(
                       aspectRatio: sheetWidthMm / sheetHeightMm,
                       child: Container(
@@ -200,6 +178,45 @@ class OptimizationScreen extends StatelessWidget {
                 ),
               );
             }),
+
+            const SizedBox(height: 20),
+
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      debugPrint('PDF EXPORT CLICKED');
+                    },
+                    child: const Text('Export PDF'),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final file = await DxfExportService.exportLayout(
+                        placedParts,
+                      );
+
+                      debugPrint('DXF CREATED: ${file.path}');
+
+                      if (!context.mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('DXF Exported: ${file.path}')),
+                      );
+                    },
+                    child: const Text('Export DXF'),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
