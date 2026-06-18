@@ -4,6 +4,7 @@ import 'edge_band_part.dart';
 import 'project_settings.dart';
 import 'dxf_export_service.dart';
 import 'nesting_engine_v4.dart';
+import 'package:share_plus/share_plus.dart';
 
 class OptimizationScreen extends StatelessWidget {
   final List<EdgeBandPart> parts;
@@ -203,11 +204,9 @@ class OptimizationScreen extends StatelessWidget {
 
                       debugPrint('DXF CREATED: ${file.path}');
 
-                      if (!context.mounted) return;
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('DXF Exported: ${file.path}')),
-                      );
+                      await Share.shareXFiles([
+                        XFile(file.path),
+                      ], text: 'CarvePlus DXF Export');
                     },
                     child: const Text('Export DXF'),
                   ),

@@ -12,38 +12,105 @@ class DxfExportService {
     buffer.writeln('SECTION');
     buffer.writeln('2');
     buffer.writeln('ENTITIES');
+    void addLine(
+      StringBuffer buffer,
+      double sx,
+      double sy,
+      double ex,
+      double ey,
+    ) {
+      buffer.writeln('0');
+      buffer.writeln('LINE');
 
+      buffer.writeln('8');
+      buffer.writeln('0');
+
+      buffer.writeln('10');
+      buffer.writeln(sx);
+
+      buffer.writeln('20');
+      buffer.writeln(sy);
+
+      buffer.writeln('11');
+      buffer.writeln(ex);
+
+      buffer.writeln('21');
+      buffer.writeln(ey);
+    }
+
+    void addText(
+      StringBuffer buffer,
+      String text,
+      double x,
+      double y,
+      double height,
+    ) {
+      buffer.writeln('0');
+      buffer.writeln('TEXT');
+
+      buffer.writeln('8');
+      buffer.writeln('0');
+
+      buffer.writeln('10');
+      buffer.writeln(x);
+
+      buffer.writeln('20');
+      buffer.writeln(y);
+
+      buffer.writeln('40');
+      buffer.writeln(height);
+
+      buffer.writeln('1');
+      buffer.writeln(text);
+    }
+
+    const sheetSpacing = 200.0;
+    const sheetWidth = 1220.0;
+    const sheetHeight = 2440.0;
+
+    final sheetNumbers = parts.map((p) => p.sheet).toSet().toList();
+
+    for (final sheet in sheetNumbers) {
+      final offsetX = (sheet - 1) * (sheetWidth + sheetSpacing);
+      addText(buffer, 'SHEET $sheet', offsetX + 100, -50, 50);
+
+      addLine(buffer, offsetX, 0, offsetX + sheetWidth, 0);
+
+      addLine(
+        buffer,
+        offsetX + sheetWidth,
+        0,
+        offsetX + sheetWidth,
+        sheetHeight,
+      );
+
+      addLine(buffer, offsetX + sheetWidth, sheetHeight, offsetX, sheetHeight);
+
+      addLine(buffer, offsetX, sheetHeight, offsetX, 0);
+    }
     for (final part in parts) {
-      final x1 = part.x;
+      final sheetOffsetX = (part.sheet - 1) * (sheetWidth + sheetSpacing);
+
+      final x1 = part.x + sheetOffsetX;
       final y1 = part.y;
 
-      final x2 = part.x + part.width;
-      final y2 = part.y + part.height;
+      final x2 = x1 + part.width;
+      final y2 = y1 + part.height;
+      final centerX = x1 + (part.width / 2);
+      final centerY = y1 + (part.height / 2);
 
-      void addLine(double sx, double sy, double ex, double ey) {
-        buffer.writeln('0');
-        buffer.writeln('LINE');
+      addText(
+        buffer,
+        '${part.name}\\P${part.width.toInt()} x ${part.height.toInt()}',
+        centerX,
+        centerY,
+        20,
+      );
 
-        buffer.writeln('8');
-        buffer.writeln('0');
-
-        buffer.writeln('10');
-        buffer.writeln(sx);
-
-        buffer.writeln('20');
-        buffer.writeln(sy);
-
-        buffer.writeln('11');
-        buffer.writeln(ex);
-
-        buffer.writeln('21');
-        buffer.writeln(ey);
-      }
-
-      addLine(x1, y1, x2, y1);
-      addLine(x2, y1, x2, y2);
-      addLine(x2, y2, x1, y2);
-      addLine(x1, y2, x1, y1);
+      addLine(buffer, x1, y1, x2, y1);
+      addLine(buffer, x2, y1, x2, y2);
+      addLine(buffer, x2, y2, x1, y2);
+      addLine(buffer, x1, y2, x1, y1);
     }
 
     buffer.writeln('0');
