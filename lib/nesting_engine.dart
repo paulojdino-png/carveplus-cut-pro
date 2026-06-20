@@ -5,6 +5,11 @@ class PlacementPart {
   final String name;
   double width;
   double height;
+  bool topEdge;
+
+  bool bottomEdge;
+  bool leftEdge;
+  bool rightEdge;
 
   bool rotated;
 
@@ -16,6 +21,12 @@ class PlacementPart {
     required this.name,
     required this.width,
     required this.height,
+
+    this.topEdge = false,
+    this.bottomEdge = false,
+    this.leftEdge = false,
+    this.rightEdge = false,
+
     this.x = 0,
     this.y = 0,
     this.sheet = 1,

@@ -165,8 +165,37 @@ class NestingEngineV4 {
       final height = double.tryParse(part.height) ?? 0;
 
       for (int i = 1; i <= qty; i++) {
+        double cutWidth = width;
+        double cutHeight = height;
+
+        if (part.left) {
+          cutWidth -= settings.edgeBandThickness;
+        }
+
+        if (part.right) {
+          cutWidth -= settings.edgeBandThickness;
+        }
+
+        if (part.top) {
+          cutHeight -= settings.edgeBandThickness;
+        }
+
+        if (part.bottom) {
+          cutHeight -= settings.edgeBandThickness;
+        }
+
         expanded.add(
-          PlacementPart(name: '${part.name} #$i', width: width, height: height),
+          PlacementPart(
+            name: '${part.name} #$i',
+
+            width: cutWidth,
+            height: cutHeight,
+
+            topEdge: part.top,
+            bottomEdge: part.bottom,
+            leftEdge: part.left,
+            rightEdge: part.right,
+          ),
         );
       }
     }

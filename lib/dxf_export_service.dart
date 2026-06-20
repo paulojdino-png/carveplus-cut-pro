@@ -43,8 +43,9 @@ class DxfExportService {
       String text,
       double x,
       double y,
-      double height,
-    ) {
+      double height, {
+      double rotation = 0,
+    }) {
       buffer.writeln('0');
       buffer.writeln('TEXT');
 
@@ -60,6 +61,21 @@ class DxfExportService {
       buffer.writeln('40');
       buffer.writeln(height);
 
+      buffer.writeln('50');
+      buffer.writeln(rotation);
+
+      buffer.writeln('72');
+      buffer.writeln('1');
+
+      buffer.writeln('73');
+      buffer.writeln('2');
+
+      buffer.writeln('11');
+      buffer.writeln(x);
+
+      buffer.writeln('21');
+      buffer.writeln(y);
+
       buffer.writeln('1');
       buffer.writeln(text);
     }
@@ -72,7 +88,13 @@ class DxfExportService {
 
     for (final sheet in sheetNumbers) {
       final offsetX = (sheet - 1) * (sheetWidth + sheetSpacing);
-      addText(buffer, 'SHEET $sheet', offsetX + 100, -50, 50);
+      addText(
+        buffer,
+        'SHEET $sheet',
+        offsetX + (sheetWidth / 2),
+        sheetHeight + 60,
+        40,
+      );
 
       addLine(buffer, offsetX, 0, offsetX + sheetWidth, 0);
 
@@ -99,12 +121,15 @@ class DxfExportService {
       final centerX = x1 + (part.width / 2);
       final centerY = y1 + (part.height / 2);
 
+      final rotateText = part.width < 180 || part.width < (part.height * 0.25);
+
       addText(
         buffer,
-        '${part.name}\\P${part.width.toInt()} x ${part.height.toInt()}',
+        '${part.name} ${part.width.toInt()}x${part.height.toInt()}',
         centerX,
         centerY,
         20,
+        rotation: rotateText ? 90 : 0,
       );
 
       addLine(buffer, x1, y1, x2, y1);
@@ -121,7 +146,9 @@ class DxfExportService {
 
     final dir = await getApplicationDocumentsDirectory();
 
-    final file = File('${dir.path}/nesting_layout.dxf');
+    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+
+    final file = File('${dir.path}/carveplus_$timestamp.dxf');
 
     await file.writeAsString(buffer.toString());
 
