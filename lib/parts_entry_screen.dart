@@ -84,6 +84,81 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
     ).showSnackBar(const SnackBar(content: Text('Project Saved')));
   }
 
+  Future<void> loadProject() async {
+    final dir = await getApplicationDocumentsDirectory();
+
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList();
+
+    if (!mounted) return;
+
+    if (files.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No saved projects found')));
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Load Project'),
+          content: SizedBox(
+            width: 300,
+            height: 300,
+            child: ListView.builder(
+              itemCount: files.length,
+              itemBuilder: (context, index) {
+                final file = files[index];
+
+                final fileName = file.path
+                    .split('/')
+                    .last
+                    .replaceAll('.json', '');
+
+                return ListTile(
+                  title: Text(fileName),
+                  onTap: () async {
+                    final jsonText = await file.readAsString();
+
+                    final project = Project.fromJson(jsonDecode(jsonText));
+
+                    setState(() {
+                      parts.clear();
+
+                      for (final p in project.parts) {
+                        parts.add(
+                          EdgeBandPart(
+                            name: p.name,
+                            width: p.width.toString(),
+                            height: p.height.toString(),
+                            qty: p.quantity.toString(),
+                            top: p.topEdge,
+                            right: p.rightEdge,
+                            bottom: p.bottomEdge,
+                            left: p.leftEdge,
+                          ),
+                        );
+                      }
+                    });
+
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> exportPdf() async {
     final projectParts = parts.map((p) {
       return Part(
@@ -180,12 +255,29 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
           children: [
             _field(partNameController, 'Part Name'),
             const SizedBox(height: 10),
-            _field(widthController, 'Width (mm)'),
+            _field(heightController, 'Length (mm)'),
             const SizedBox(height: 10),
-            _field(heightController, 'Height (mm)'),
+            _field(widthController, 'Width (mm)'),
             const SizedBox(height: 10),
             _field(qtyController, 'Quantity'),
             const SizedBox(height: 16),
+            const Text(
+              'Edge Banding',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            SizedBox(height: 4),
+
+            Text(
+              'Tap the sides that require edge banding',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+
+            SizedBox(height: 12),
             Expanded(
               child: ListView(
                 children: [
@@ -226,14 +318,6 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
                         onPressed: saveProject,
                         child: const Text('Save Project'),
                       ),
-
-                      const SizedBox(height: 12),
-
-                      ElevatedButton(
-                        onPressed: exportPdf,
-                        child: const Text('Export PDF'),
-                      ),
-
                       const SizedBox(height: 12),
 
                       ElevatedButton(
@@ -297,16 +381,19 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
             children: [
               Column(
                 children: [
-                  _edgeButton('LEFT', leftEdge, () {
-                    setState(() => leftEdge = !leftEdge);
-                  }),
-                  const SizedBox(height: 12),
-                  RotatedBox(
-                    quarterTurns: 3,
-                    child: Text(
-                      '${h.toInt()} mm',
-                      style: const TextStyle(color: Colors.white),
+                  SizedBox(
+                    height: 100,
+                    child: RotatedBox(
+                      quarterTurns: 3,
+                      child: _edgeButton('LEFT', leftEdge, () {
+                        setState(() => leftEdge = !leftEdge);
+                      }),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${h.toInt()} mm',
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
@@ -344,10 +431,13 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
               ),
               const SizedBox(width: 12),
               SizedBox(
-                width: 100,
-                child: _edgeButton('RIGHT', rightEdge, () {
-                  setState(() => rightEdge = !rightEdge);
-                }),
+                height: 100,
+                child: RotatedBox(
+                  quarterTurns: 1,
+                  child: _edgeButton('RIGHT', rightEdge, () {
+                    setState(() => rightEdge = !rightEdge);
+                  }),
+                ),
               ),
             ],
           ),
@@ -366,7 +456,7 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: selected ? Colors.green : const Color(0xFF0B1120),
       ),
-      child: Text(text),
+      child: FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1)),
     );
   }
 

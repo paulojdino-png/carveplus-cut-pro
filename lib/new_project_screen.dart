@@ -10,9 +10,7 @@ class NewProjectScreen extends StatefulWidget {
 }
 
 class _NewProjectScreenState extends State<NewProjectScreen> {
-  final TextEditingController projectNameController = TextEditingController(
-    text: 'New Project',
-  );
+  final TextEditingController projectNameController = TextEditingController();
 
   final TextEditingController sheetWidthController = TextEditingController(
     text: '1220',
@@ -48,6 +46,9 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0B1120),
         elevation: 0,
+
+        iconTheme: const IconThemeData(color: Colors.white),
+
         title: const Text('New Project', style: TextStyle(color: Colors.white)),
       ),
 

@@ -3,10 +3,12 @@ import 'project_settings.dart';
 
 class PlacementPart {
   final String name;
+
+  String code;
+
   double width;
   double height;
   bool topEdge;
-
   bool bottomEdge;
   bool leftEdge;
   bool rightEdge;
@@ -19,6 +21,7 @@ class PlacementPart {
 
   PlacementPart({
     required this.name,
+    this.code = '',
     required this.width,
     required this.height,
 

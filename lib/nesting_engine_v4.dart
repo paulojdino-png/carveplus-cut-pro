@@ -199,6 +199,21 @@ class NestingEngineV4 {
         );
       }
     }
+    final codeMap = <String, String>{};
+
+    int nextCode = 1;
+
+    for (final part in expanded) {
+      final baseName =
+          '${part.name.split(' #').first}_${part.width}_${part.height}';
+
+      if (!codeMap.containsKey(baseName)) {
+        codeMap[baseName] = 'P$nextCode';
+        nextCode++;
+      }
+
+      part.code = codeMap[baseName]!;
+    }
 
     expanded.sort(
       (a, b) => (b.height > b.width ? b.height : b.width).compareTo(

@@ -9,6 +9,7 @@ import 'new_project_screen.dart';
 import 'parts_entry_screen.dart';
 import 'edge_band_part.dart';
 import 'project_settings.dart';
+import 'projects_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,62 +19,107 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  List<String> recentProjects = [];
+  int projectCount = 0;
+  @override
+  void initState() {
+    super.initState();
+    loadRecentProjects();
+  }
+
   Future<void> loadProject() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
+    final dir = await getApplicationDocumentsDirectory();
 
-      final file = File('${dir.path}/fortress.json');
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList();
 
-      if (!await file.exists()) {
-        if (!mounted) return;
+    if (!mounted) return;
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('test.json not found')));
-        return;
-      }
-
-      final jsonString = await file.readAsString();
-
-      final project = Project.fromJson(jsonDecode(jsonString));
-      final settings = ProjectSettings(
-        projectName: project.projectName,
-        material: project.material,
-        sheetWidth: project.sheetWidth,
-        sheetLength: project.sheetLength,
-        thickness: project.thickness,
-        borderMargin: project.borderMargin,
-        partSpacing: project.partSpacing,
-        edgeBandThickness: project.edgeBandThickness,
-        allowRotation: true,
-        woodGrain: false,
-      );
-
-      final loadedParts = project.parts.map((p) {
-        return EdgeBandPart(
-          name: p.name,
-          width: p.width.toString(),
-          height: p.height.toString(),
-          qty: p.quantity.toString(),
-          top: p.topEdge,
-          bottom: p.bottomEdge,
-          left: p.leftEdge,
-          right: p.rightEdge,
-        );
-      }).toList();
-
-      if (!mounted) return;
-
-      Navigator.push(
+    if (files.isEmpty) {
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(
-          builder: (_) =>
-              PartsEntryScreen(settings: settings, initialParts: loadedParts),
-        ),
-      );
-    } catch (e) {
-      debugPrint('LOAD ERROR: $e');
+      ).showSnackBar(const SnackBar(content: Text('No saved projects found')));
+      return;
     }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Load Project'),
+          content: SizedBox(
+            width: 300,
+            height: 300,
+            child: ListView.builder(
+              itemCount: files.length,
+              itemBuilder: (context, index) {
+                final file = files[index];
+
+                final jsonString = file.path
+                    .split('/')
+                    .last
+                    .replaceAll('.json', '');
+
+                return ListTile(
+                  title: Text(jsonString),
+                  onTap: () async {
+                    final jsonText = await file.readAsString();
+
+                    final project = Project.fromJson(jsonDecode(jsonText));
+
+                    final settings = ProjectSettings(
+                      projectName: project.projectName,
+                      material: project.material,
+                      sheetWidth: project.sheetWidth,
+                      sheetLength: project.sheetLength,
+                      thickness: project.thickness,
+                      borderMargin: project.borderMargin,
+                      partSpacing: project.partSpacing,
+                      edgeBandThickness: project.edgeBandThickness,
+                      allowRotation: true,
+                      woodGrain: false,
+                    );
+
+                    final loadedParts = project.parts.map((p) {
+                      return EdgeBandPart(
+                        name: p.name,
+                        width: p.width.toString(),
+                        height: p.height.toString(),
+                        qty: p.quantity.toString(),
+                        top: p.topEdge,
+                        bottom: p.bottomEdge,
+                        left: p.leftEdge,
+                        right: p.rightEdge,
+                      );
+                    }).toList();
+
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
+
+                    if (!mounted) return;
+
+                    await Navigator.push(
+                      this.context,
+                      MaterialPageRoute(
+                        builder: (_) => PartsEntryScreen(
+                          settings: settings,
+                          initialParts: loadedParts,
+                        ),
+                      ),
+                    );
+                    loadRecentProjects();
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -128,64 +174,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               const SizedBox(height: 24),
 
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A2234),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          '0',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text('Projects', style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
-
-                    Column(
-                      children: [
-                        Text(
-                          '0',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Materials',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
               SizedBox(
                 width: double.infinity,
                 height: 60,
 
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const NewProjectScreen(),
                       ),
                     );
+
+                    loadRecentProjects();
                   },
 
                   style: ElevatedButton.styleFrom(
@@ -200,58 +202,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 12),
 
-              SizedBox(
-                width: double.infinity,
-                height: 60,
+              Text(
+                'Recent Projects ($projectCount)',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
 
-                child: ElevatedButton(
-                  onPressed: loadProject,
+              const SizedBox(height: 12),
 
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              ...recentProjects.map((name) => _projectTile(name)),
+              const SizedBox(height: 8),
 
-                  child: const Text(
-                    'Load Project',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+              Center(
+                child: TextButton(
+                  onPressed: () async {
+                    final refreshed = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ProjectsScreen()),
+                    );
+
+                    if (refreshed == true) {
+                      await loadRecentProjects();
+                    }
+                  },
+                  child: Text(
+                    'View All Projects ($projectCount)',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
 
               const SizedBox(height: 30),
-
-              const Text(
-                'Recent Projects',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              _projectTile('Kitchen Cabinet A'),
-              _projectTile('Wardrobe Project'),
-              _projectTile('TV Console'),
-
-              const SizedBox(height: 30),
-
-              const Text(
-                'Quick Tools',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              _menuButton(Icons.layers, 'Material Library'),
-              _menuButton(Icons.history, 'Optimization History'),
-              _menuButton(Icons.picture_as_pdf, 'DXF Exports'),
-              _menuButton(Icons.settings, 'Settings'),
-
-              const SizedBox(height: 20),
 
               Container(
                 padding: const EdgeInsets.all(14),
@@ -280,23 +267,127 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  static Widget _projectTile(String name) {
+  Future<void> loadRecentProjects() async {
+    final dir = await getApplicationDocumentsDirectory();
+
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList();
+
+    files.sort((a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()));
+
+    setState(() {
+      recentProjects = files
+          .take(5)
+          .map((f) => f.path.split('/').last.replaceAll('.json', ''))
+          .toList();
+      projectCount = files.length;
+    });
+  }
+
+  Future<void> showDeleteProjectDialog(String projectName) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Project'),
+          content: Text('Delete "$projectName"?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+
+            TextButton(
+              onPressed: () async {
+                final dir = await getApplicationDocumentsDirectory();
+
+                final file = File('${dir.path}/$projectName.json');
+
+                if (await file.exists()) {
+                  await file.delete();
+                }
+
+                await loadRecentProjects();
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _projectTile(String name) {
     return Card(
       color: const Color(0xFF1A2234),
       child: ListTile(
         title: Text(name, style: const TextStyle(color: Colors.white)),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.green),
-      ),
-    );
-  }
 
-  static Widget _menuButton(IconData icon, String title) {
-    return Card(
-      color: const Color(0xFF1A2234),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.green),
-        title: Text(title, style: const TextStyle(color: Colors.white)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.green),
+
+        onTap: () async {
+          final dir = await getApplicationDocumentsDirectory();
+
+          final file = File('${dir.path}/$name.json');
+
+          if (!await file.exists()) {
+            return;
+          }
+
+          final jsonText = await file.readAsString();
+
+          final project = Project.fromJson(jsonDecode(jsonText));
+
+          final settings = ProjectSettings(
+            projectName: project.projectName,
+            material: project.material,
+            sheetWidth: project.sheetWidth,
+            sheetLength: project.sheetLength,
+            thickness: project.thickness,
+            borderMargin: project.borderMargin,
+            partSpacing: project.partSpacing,
+            edgeBandThickness: project.edgeBandThickness,
+            allowRotation: true,
+            woodGrain: false,
+          );
+
+          final loadedParts = project.parts.map((p) {
+            return EdgeBandPart(
+              name: p.name,
+              width: p.width.toString(),
+              height: p.height.toString(),
+              qty: p.quantity.toString(),
+              top: p.topEdge,
+              bottom: p.bottomEdge,
+              left: p.leftEdge,
+              right: p.rightEdge,
+            );
+          }).toList();
+
+          if (!mounted) return;
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PartsEntryScreen(
+                settings: settings,
+                initialParts: loadedParts,
+              ),
+            ),
+          );
+        },
+        onLongPress: () async {
+          showDeleteProjectDialog(name);
+        },
       ),
     );
   }

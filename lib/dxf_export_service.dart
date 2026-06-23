@@ -17,13 +17,18 @@ class DxfExportService {
       double sx,
       double sy,
       double ex,
-      double ey,
-    ) {
+      double ey, {
+      String layer = 'PARTS',
+      int color = 7,
+    }) {
       buffer.writeln('0');
       buffer.writeln('LINE');
 
       buffer.writeln('8');
-      buffer.writeln('0');
+      buffer.writeln(layer);
+
+      buffer.writeln('62');
+      buffer.writeln(color);
 
       buffer.writeln('10');
       buffer.writeln(sx);
@@ -38,6 +43,41 @@ class DxfExportService {
       buffer.writeln(ey);
     }
 
+    void addDashedLine(
+      StringBuffer buffer,
+      double x1,
+      double y1,
+      double x2,
+      double y2, {
+      String layer = 'EDGE_BAND',
+      int color = 1,
+    }) {
+      const dash = 20.0;
+      const gap = 10.0;
+
+      if (y1 == y2) {
+        double x = x1;
+
+        while (x < x2) {
+          final end = (x + dash > x2) ? x2 : x + dash;
+
+          addLine(buffer, x, y1, end, y2, layer: layer, color: color);
+
+          x += dash + gap;
+        }
+      } else if (x1 == x2) {
+        double y = y1;
+
+        while (y < y2) {
+          final end = (y + dash > y2) ? y2 : y + dash;
+
+          addLine(buffer, x1, y, x2, end, layer: layer, color: color);
+
+          y += dash + gap;
+        }
+      }
+    }
+
     void addText(
       StringBuffer buffer,
       String text,
@@ -45,12 +85,17 @@ class DxfExportService {
       double y,
       double height, {
       double rotation = 0,
+      String layer = 'TEXT',
+      int color = 4,
     }) {
       buffer.writeln('0');
       buffer.writeln('TEXT');
 
       buffer.writeln('8');
-      buffer.writeln('0');
+      buffer.writeln(layer);
+
+      buffer.writeln('62');
+      buffer.writeln(color);
 
       buffer.writeln('10');
       buffer.writeln(x);
@@ -94,9 +139,19 @@ class DxfExportService {
         offsetX + (sheetWidth / 2),
         sheetHeight + 60,
         40,
+        layer: 'SHEETS',
+        color: 8,
       );
 
-      addLine(buffer, offsetX, 0, offsetX + sheetWidth, 0);
+      addLine(
+        buffer,
+        offsetX,
+        0,
+        offsetX + sheetWidth,
+        0,
+        layer: 'SHEETS',
+        color: 8,
+      );
 
       addLine(
         buffer,
@@ -104,11 +159,29 @@ class DxfExportService {
         0,
         offsetX + sheetWidth,
         sheetHeight,
+        layer: 'SHEETS',
+        color: 8,
       );
 
-      addLine(buffer, offsetX + sheetWidth, sheetHeight, offsetX, sheetHeight);
+      addLine(
+        buffer,
+        offsetX + sheetWidth,
+        sheetHeight,
+        offsetX,
+        sheetHeight,
+        layer: 'SHEETS',
+        color: 8,
+      );
 
-      addLine(buffer, offsetX, sheetHeight, offsetX, 0);
+      addLine(
+        buffer,
+        offsetX,
+        sheetHeight,
+        offsetX,
+        0,
+        layer: 'SHEETS',
+        color: 8,
+      );
     }
     for (final part in parts) {
       final sheetOffsetX = (part.sheet - 1) * (sheetWidth + sheetSpacing);
@@ -130,12 +203,74 @@ class DxfExportService {
         centerY,
         20,
         rotation: rotateText ? 90 : 0,
+        layer: 'TEXT',
+        color: 4,
       );
 
-      addLine(buffer, x1, y1, x2, y1);
-      addLine(buffer, x2, y1, x2, y2);
-      addLine(buffer, x2, y2, x1, y2);
-      addLine(buffer, x1, y2, x1, y1);
+      addLine(buffer, x1, y1, x2, y1, layer: 'PARTS');
+
+      addLine(buffer, x2, y1, x2, y2, layer: 'PARTS');
+
+      addLine(buffer, x2, y2, x1, y2, layer: 'PARTS');
+
+      addLine(buffer, x1, y2, x1, y1, layer: 'PARTS');
+      bool topEdge = part.topEdge;
+      bool rightEdge = part.rightEdge;
+      bool bottomEdge = part.bottomEdge;
+      bool leftEdge = part.leftEdge;
+
+      if (part.rotated) {
+        final oldTop = topEdge;
+        final oldRight = rightEdge;
+        final oldBottom = bottomEdge;
+        final oldLeft = leftEdge;
+
+        topEdge = oldLeft;
+        rightEdge = oldTop;
+        bottomEdge = oldRight;
+        leftEdge = oldBottom;
+      }
+      const edgeOffset = 5.0;
+
+      if (topEdge) {
+        addDashedLine(
+          buffer,
+          x1 + edgeOffset,
+          y1 + edgeOffset,
+          x2 - edgeOffset,
+          y1 + edgeOffset,
+        );
+      }
+
+      if (bottomEdge) {
+        addDashedLine(
+          buffer,
+          x1 + edgeOffset,
+          y2 - edgeOffset,
+          x2 - edgeOffset,
+          y2 - edgeOffset,
+        );
+      }
+
+      if (leftEdge) {
+        addDashedLine(
+          buffer,
+          x1 + edgeOffset,
+          y1 + edgeOffset,
+          x1 + edgeOffset,
+          y2 - edgeOffset,
+        );
+      }
+
+      if (rightEdge) {
+        addDashedLine(
+          buffer,
+          x2 - edgeOffset,
+          y1 + edgeOffset,
+          x2 - edgeOffset,
+          y2 - edgeOffset,
+        );
+      }
     }
 
     buffer.writeln('0');

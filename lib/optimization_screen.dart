@@ -5,6 +5,7 @@ import 'project_settings.dart';
 import 'dxf_export_service.dart';
 import 'nesting_engine_v4.dart';
 import 'package:share_plus/share_plus.dart';
+import 'pdf_layout_export_service.dart';
 
 class OptimizationScreen extends StatelessWidget {
   final List<EdgeBandPart> parts;
@@ -186,13 +187,23 @@ class OptimizationScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      debugPrint('PDF EXPORT CLICKED');
+                    onPressed: () async {
+                      final file = await PdfLayoutExportService.exportLayout(
+                        placedParts,
+                        sheets.length,
+                        utilization.toDouble(),
+                        waste.toDouble(),
+                      );
+
+                      debugPrint('PDF CREATED: ${file.path}');
+
+                      await Share.shareXFiles([
+                        XFile(file.path),
+                      ], text: 'CarvePlus PDF Export');
                     },
                     child: const Text('Export PDF'),
                   ),
                 ),
-
                 const SizedBox(width: 12),
 
                 Expanded(
