@@ -95,12 +95,60 @@ class PdfLayoutExportService {
                             decoration: pw.BoxDecoration(
                               border: pw.Border.all(),
                             ),
-                            child: pw.Center(
-                              child: pw.Text(
-                                part.code,
-                                textAlign: pw.TextAlign.center,
-                                style: const pw.TextStyle(fontSize: 8),
-                              ),
+                            child: pw.Stack(
+                              children: [
+                                if (part.topEdge)
+                                  pw.Positioned(
+                                    top: 2,
+                                    left: 2,
+                                    right: 2,
+                                    child: pw.Container(
+                                      height: 2,
+                                      color: PdfColors.red,
+                                    ),
+                                  ),
+
+                                if (part.bottomEdge)
+                                  pw.Positioned(
+                                    bottom: 2,
+                                    left: 2,
+                                    right: 2,
+                                    child: pw.Container(
+                                      height: 2,
+                                      color: PdfColors.red,
+                                    ),
+                                  ),
+
+                                if (part.leftEdge)
+                                  pw.Positioned(
+                                    left: 2,
+                                    top: 2,
+                                    bottom: 2,
+                                    child: pw.Container(
+                                      width: 2,
+                                      color: PdfColors.red,
+                                    ),
+                                  ),
+
+                                if (part.rightEdge)
+                                  pw.Positioned(
+                                    right: 2,
+                                    top: 2,
+                                    bottom: 2,
+                                    child: pw.Container(
+                                      width: 2,
+                                      color: PdfColors.red,
+                                    ),
+                                  ),
+
+                                pw.Center(
+                                  child: pw.Text(
+                                    part.code,
+                                    textAlign: pw.TextAlign.center,
+                                    style: const pw.TextStyle(fontSize: 8),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );

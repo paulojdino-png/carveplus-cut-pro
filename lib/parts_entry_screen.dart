@@ -29,6 +29,9 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
   final qtyController = TextEditingController(text: '1');
 
   final List<EdgeBandPart> parts = [];
+  int? editingIndex;
+
+  bool isEditing = false;
   @override
   void initState() {
     super.initState();
@@ -213,19 +216,26 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
     }
 
     setState(() {
-      parts.add(
-        EdgeBandPart(
-          name: partNameController.text,
-          width: widthController.text,
-          height: heightController.text,
-          qty: qtyController.text,
-          top: topEdge,
-          right: rightEdge,
-          bottom: bottomEdge,
-          left: leftEdge,
-          allowRotation: allowRotation,
-        ),
+      final updatedPart = EdgeBandPart(
+        name: partNameController.text,
+        width: widthController.text,
+        height: heightController.text,
+        qty: qtyController.text,
+        top: topEdge,
+        right: rightEdge,
+        bottom: bottomEdge,
+        left: leftEdge,
+        allowRotation: allowRotation,
       );
+
+      if (isEditing && editingIndex != null) {
+        parts[editingIndex!] = updatedPart;
+
+        isEditing = false;
+        editingIndex = null;
+      } else {
+        parts.add(updatedPart);
+      }
 
       partNameController.clear();
       widthController.clear();
@@ -236,6 +246,7 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
       rightEdge = false;
       bottomEdge = false;
       leftEdge = false;
+      allowRotation = true;
     });
   }
 
@@ -283,31 +294,29 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
               controlAffinity: ListTileControlAffinity.leading,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Edge Banding',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
 
-            SizedBox(height: 4),
-
-            Text(
-              'Tap the sides that require edge banding',
-              style: TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-
-            SizedBox(height: 12),
             Expanded(
               child: ListView(
                 children: [
+                  const Center(
+                    child: Text(
+                      'Edge Banding',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 4),
+
+                  SizedBox(height: 12),
                   _preview(),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: addPart,
-                    child: const Text('+ Add Part'),
+                    child: Text(isEditing ? '💾 Update Part' : '+ Add Part'),
                   ),
                   const SizedBox(height: 16),
                   ...parts.asMap().entries.map((e) {
@@ -316,20 +325,64 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
                       child: ListTile(
                         title: Text(p.name),
                         subtitle: Text(
-                          '${p.width} × ${p.height} | Qty ${p.qty}\n'
-                          '${p.top ? "🟩" : "⬜"} Top  '
-                          '${p.right ? "🟩" : "⬜"} Right  '
-                          '${p.bottom ? "🟩" : "⬜"} Bottom  '
-                          '${p.left ? "🟩" : "⬜"} Left\n'
+                          '${p.height} × ${p.width} | Qty ${p.qty}\n'
+                          'T:${p.top ? "🟩" : "⬜"}  '
+                          'R:${p.right ? "🟩" : "⬜"}  '
+                          'B:${p.bottom ? "🟩" : "⬜"}  '
+                          'L:${p.left ? "🟩" : "⬜"}\n'
                           '${p.allowRotation ? "🔄 Rotation Allowed" : "🔒 Rotation Locked"}',
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              parts.removeAt(e.key);
-                            });
-                          },
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                final part = parts[e.key];
+
+                                setState(() {
+                                  editingIndex = e.key;
+                                  isEditing = true;
+
+                                  partNameController.text = part.name;
+                                  widthController.text = part.width;
+                                  heightController.text = part.height;
+                                  qtyController.text = part.qty;
+
+                                  topEdge = part.top;
+                                  rightEdge = part.right;
+                                  bottomEdge = part.bottom;
+                                  leftEdge = part.left;
+
+                                  allowRotation = part.allowRotation;
+                                });
+                              },
+                            ),
+
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                final part = parts[e.key];
+
+                                setState(() {
+                                  editingIndex = e.key;
+                                  isEditing = true;
+
+                                  partNameController.text = part.name;
+                                  widthController.text = part.width;
+                                  heightController.text = part.height;
+                                  qtyController.text = part.qty;
+
+                                  topEdge = part.top;
+                                  rightEdge = part.right;
+                                  bottomEdge = part.bottom;
+                                  leftEdge = part.left;
+
+                                  allowRotation = part.allowRotation;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     );

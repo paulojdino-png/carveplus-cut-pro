@@ -237,9 +237,9 @@ class DxfExportService {
         addDashedLine(
           buffer,
           x1 + edgeOffset,
-          y1 + edgeOffset,
+          y2 - edgeOffset,
           x2 - edgeOffset,
-          y1 + edgeOffset,
+          y2 - edgeOffset,
         );
       }
 
@@ -247,9 +247,9 @@ class DxfExportService {
         addDashedLine(
           buffer,
           x1 + edgeOffset,
-          y2 - edgeOffset,
+          y1 + edgeOffset,
           x2 - edgeOffset,
-          y2 - edgeOffset,
+          y1 + edgeOffset,
         );
       }
 
