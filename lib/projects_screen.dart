@@ -266,6 +266,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                         bottom: p.bottomEdge,
                         left: p.leftEdge,
                         right: p.rightEdge,
+                        allowRotation: p.allowRotation,
                       );
                     }).toList();
                     if (!context.mounted) return;

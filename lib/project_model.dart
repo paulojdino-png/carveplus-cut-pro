@@ -8,6 +8,7 @@ class Part {
   bool bottomEdge;
   bool leftEdge;
   bool rightEdge;
+  bool allowRotation;
 
   Part({
     required this.name,
@@ -19,6 +20,7 @@ class Part {
     this.bottomEdge = false,
     this.leftEdge = false,
     this.rightEdge = false,
+    this.allowRotation = true,
   });
 
   String get edgeBandSummary {
@@ -46,6 +48,7 @@ class Part {
       'bottomEdge': bottomEdge,
       'leftEdge': leftEdge,
       'rightEdge': rightEdge,
+      'allowRotation': allowRotation,
     };
   }
 
@@ -59,6 +62,7 @@ class Part {
       bottomEdge: json['bottomEdge'] ?? false,
       leftEdge: json['leftEdge'] ?? false,
       rightEdge: json['rightEdge'] ?? false,
+      allowRotation: json['allowRotation'] ?? true,
     );
   }
 }

@@ -49,6 +49,7 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
         bottomEdge: p.bottom,
         leftEdge: p.left,
         rightEdge: p.right,
+        allowRotation: p.allowRotation,
       );
     }).toList();
 
@@ -170,6 +171,7 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
         bottomEdge: p.bottom,
         leftEdge: p.left,
         rightEdge: p.right,
+        allowRotation: p.allowRotation,
       );
     }).toList();
 
@@ -201,6 +203,7 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
   bool rightEdge = false;
   bool bottomEdge = false;
   bool leftEdge = false;
+  bool allowRotation = true;
 
   void addPart() {
     if (partNameController.text.isEmpty ||
@@ -220,6 +223,7 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
           right: rightEdge,
           bottom: bottomEdge,
           left: leftEdge,
+          allowRotation: allowRotation,
         ),
       );
 
@@ -260,6 +264,24 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
             _field(widthController, 'Width (mm)'),
             const SizedBox(height: 10),
             _field(qtyController, 'Quantity'),
+            CheckboxListTile(
+              value: allowRotation,
+
+              onChanged: (value) {
+                setState(() {
+                  allowRotation = value ?? true;
+                });
+              },
+
+              title: const Text(
+                'Allow Rotation',
+                style: TextStyle(color: Colors.white),
+              ),
+
+              activeColor: Colors.green,
+
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
             const SizedBox(height: 16),
             const Text(
               'Edge Banding',
@@ -298,7 +320,8 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
                           '${p.top ? "🟩" : "⬜"} Top  '
                           '${p.right ? "🟩" : "⬜"} Right  '
                           '${p.bottom ? "🟩" : "⬜"} Bottom  '
-                          '${p.left ? "🟩" : "⬜"} Left',
+                          '${p.left ? "🟩" : "⬜"} Left\n'
+                          '${p.allowRotation ? "🔄 Rotation Allowed" : "🔒 Rotation Locked"}',
                         ),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete),

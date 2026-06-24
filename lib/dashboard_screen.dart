@@ -370,6 +370,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               bottom: p.bottomEdge,
               left: p.leftEdge,
               right: p.rightEdge,
+              allowRotation: p.allowRotation,
             );
           }).toList();
 

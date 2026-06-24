@@ -8,6 +8,7 @@ class EdgeBandPart {
   bool right;
   bool bottom;
   bool left;
+  bool allowRotation;
 
   EdgeBandPart({
     required this.name,
@@ -18,5 +19,6 @@ class EdgeBandPart {
     this.right = false,
     this.bottom = false,
     this.left = false,
+    this.allowRotation = true,
   });
 }
