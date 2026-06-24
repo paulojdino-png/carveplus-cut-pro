@@ -187,7 +187,8 @@ class DxfExportService {
       final sheetOffsetX = (part.sheet - 1) * (sheetWidth + sheetSpacing);
 
       final x1 = part.x + sheetOffsetX;
-      final y1 = part.y;
+
+      final y1 = sheetHeight - part.y - part.height;
 
       final x2 = x1 + part.width;
       final y2 = y1 + part.height;
@@ -198,7 +199,7 @@ class DxfExportService {
 
       addText(
         buffer,
-        '${part.name} ${part.width.toInt()}x${part.height.toInt()}',
+        part.code,
         centerX,
         centerY,
         20,

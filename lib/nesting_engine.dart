@@ -14,6 +14,7 @@ class PlacementPart {
   bool rightEdge;
 
   bool rotated;
+  bool allowRotation;
 
   double x;
   double y;
@@ -34,6 +35,7 @@ class PlacementPart {
     this.y = 0,
     this.sheet = 1,
     this.rotated = false,
+    this.allowRotation = true,
   });
 }
 

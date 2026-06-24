@@ -195,6 +195,7 @@ class NestingEngineV4 {
             bottomEdge: part.bottom,
             leftEdge: part.left,
             rightEdge: part.right,
+            allowRotation: part.allowRotation,
           ),
         );
       }
@@ -254,11 +255,13 @@ class NestingEngineV4 {
 
           bool candidateRotated = false;
 
-          final rotatedCandidate = _findNode(
-            sheet.freeRects,
-            part.height + settings.partSpacing,
-            part.width + settings.partSpacing,
-          );
+          final rotatedCandidate = part.allowRotation
+              ? _findNode(
+                  sheet.freeRects,
+                  part.height + settings.partSpacing,
+                  part.width + settings.partSpacing,
+                )
+              : null;
 
           if (candidate == null && rotatedCandidate != null) {
             candidate = rotatedCandidate;
