@@ -268,170 +268,175 @@ class _PartsEntryScreenState extends State<PartsEntryScreen> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _field(partNameController, 'Part Name'),
-              const SizedBox(height: 10),
-              _field(
-                heightController,
-                'Length (mm)',
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 10),
-              _field(
-                widthController,
-                'Width (mm)',
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 10),
-              _field(
-                qtyController,
-                'Quantity',
-                keyboardType: TextInputType.number,
-              ),
-              CheckboxListTile(
-                value: allowRotation,
-
-                onChanged: (value) {
-                  setState(() {
-                    allowRotation = value ?? true;
-                  });
-                },
-
-                title: const Text(
-                  'Allow Rotation',
-                  style: TextStyle(color: Colors.white),
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+              children: [
+                _field(partNameController, 'Part Name'),
+                const SizedBox(height: 10),
+                _field(
+                  heightController,
+                  'Length (mm)',
+                  keyboardType: TextInputType.number,
                 ),
+                const SizedBox(height: 10),
+                _field(
+                  widthController,
+                  'Width (mm)',
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 10),
+                _field(
+                  qtyController,
+                  'Quantity',
+                  keyboardType: TextInputType.number,
+                ),
+                CheckboxListTile(
+                  value: allowRotation,
 
-                activeColor: Colors.green,
+                  onChanged: (value) {
+                    setState(() {
+                      allowRotation = value ?? true;
+                    });
+                  },
 
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              const SizedBox(height: 16),
+                  title: const Text(
+                    'Allow Rotation',
+                    style: TextStyle(color: Colors.white),
+                  ),
 
-              SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                child: Column(
-                  children: [
-                    const Center(
-                      child: Text(
-                        'Edge Banding',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                  activeColor: Colors.green,
+
+                  controlAffinity: ListTileControlAffinity.leading,
+                ),
+                const SizedBox(height: 16),
+
+                SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    children: [
+                      const Center(
+                        child: Text(
+                          'Edge Banding',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
 
-                    SizedBox(height: 4),
+                      SizedBox(height: 4),
 
-                    SizedBox(height: 12),
-                    _preview(),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: addPart,
-                      child: Text(isEditing ? '💾 Update Part' : '+ Add Part'),
-                    ),
-                    const SizedBox(height: 16),
-                    ...parts.asMap().entries.map((e) {
-                      final p = e.value;
-                      return Card(
-                        child: ListTile(
-                          title: Text(p.name),
-                          subtitle: Text(
-                            '${p.height} × ${p.width} | Qty ${p.qty}\n'
-                            'T:${p.top ? "🟩" : "⬜"}  '
-                            'R:${p.right ? "🟩" : "⬜"}  '
-                            'B:${p.bottom ? "🟩" : "⬜"}  '
-                            'L:${p.left ? "🟩" : "⬜"}\n'
-                            '${p.allowRotation ? "🔄 Rotation Allowed" : "🔒 Rotation Locked"}',
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () {
-                                  final part = parts[e.key];
-
-                                  setState(() {
-                                    editingIndex = e.key;
-                                    isEditing = true;
-
-                                    partNameController.text = part.name;
-                                    widthController.text = part.width;
-                                    heightController.text = part.height;
-                                    qtyController.text = part.qty;
-
-                                    topEdge = part.top;
-                                    rightEdge = part.right;
-                                    bottomEdge = part.bottom;
-                                    leftEdge = part.left;
-
-                                    allowRotation = part.allowRotation;
-                                  });
-                                },
-                              ),
-
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  final part = parts[e.key];
-
-                                  setState(() {
-                                    editingIndex = e.key;
-                                    isEditing = true;
-
-                                    partNameController.text = part.name;
-                                    widthController.text = part.width;
-                                    heightController.text = part.height;
-                                    qtyController.text = part.qty;
-
-                                    topEdge = part.top;
-                                    rightEdge = part.right;
-                                    bottomEdge = part.bottom;
-                                    leftEdge = part.left;
-
-                                    allowRotation = part.allowRotation;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
+                      SizedBox(height: 12),
+                      _preview(),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: addPart,
+                        child: Text(
+                          isEditing ? '💾 Update Part' : '+ Add Part',
                         ),
-                      );
-                    }),
-                    const SizedBox(height: 16),
-                    Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: saveProject,
-                          child: const Text('Save Project'),
-                        ),
-                        const SizedBox(height: 12),
+                      ),
+                      const SizedBox(height: 16),
+                      ...parts.asMap().entries.map((e) {
+                        final p = e.value;
+                        return Card(
+                          child: ListTile(
+                            title: Text(p.name),
+                            subtitle: Text(
+                              '${p.height} × ${p.width} | Qty ${p.qty}\n'
+                              'T:${p.top ? "🟩" : "⬜"}  '
+                              'R:${p.right ? "🟩" : "⬜"}  '
+                              'B:${p.bottom ? "🟩" : "⬜"}  '
+                              'L:${p.left ? "🟩" : "⬜"}\n'
+                              '${p.allowRotation ? "🔄 Rotation Allowed" : "🔒 Rotation Locked"}',
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    final part = parts[e.key];
 
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => OptimizationScreen(
-                                  parts: parts,
-                                  settings: widget.settings,
+                                    setState(() {
+                                      editingIndex = e.key;
+                                      isEditing = true;
+
+                                      partNameController.text = part.name;
+                                      widthController.text = part.width;
+                                      heightController.text = part.height;
+                                      qtyController.text = part.qty;
+
+                                      topEdge = part.top;
+                                      rightEdge = part.right;
+                                      bottomEdge = part.bottom;
+                                      leftEdge = part.left;
+
+                                      allowRotation = part.allowRotation;
+                                    });
+                                  },
                                 ),
-                              ),
-                            );
-                          },
-                          child: const Text('Optimize Layout'),
-                        ),
-                      ],
-                    ),
-                  ],
+
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    final part = parts[e.key];
+
+                                    setState(() {
+                                      editingIndex = e.key;
+                                      isEditing = true;
+
+                                      partNameController.text = part.name;
+                                      widthController.text = part.width;
+                                      heightController.text = part.height;
+                                      qtyController.text = part.qty;
+
+                                      topEdge = part.top;
+                                      rightEdge = part.right;
+                                      bottomEdge = part.bottom;
+                                      leftEdge = part.left;
+
+                                      allowRotation = part.allowRotation;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                      const SizedBox(height: 16),
+                      Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: saveProject,
+                            child: const Text('Save Project'),
+                          ),
+                          const SizedBox(height: 12),
+
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => OptimizationScreen(
+                                    parts: parts,
+                                    settings: widget.settings,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Text('Optimize Layout'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
