@@ -24,10 +24,10 @@ class SheetBin {
   SheetBin({required this.sheetNumber, required this.freeRects});
 }
 
-class NestingEngineV4 {
+class NestingEngineV5 {
   final ProjectSettings settings;
 
-  NestingEngineV4(this.settings);
+  NestingEngineV5(this.settings);
 
   bool _collide(FreeRect a, FreeRect b) {
     return b.x < a.x + a.width &&

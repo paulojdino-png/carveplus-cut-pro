@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'edge_band_part.dart';
 import 'project_settings.dart';
 import 'dxf_export_service.dart';
-import 'nesting_engine_v4.dart';
+import 'nesting_engine_v5.dart';
 import 'package:share_plus/share_plus.dart';
 import 'pdf_layout_export_service.dart';
 
@@ -27,7 +27,7 @@ class OptimizationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final engine = NestingEngineV4(settings);
+    final engine = NestingEngineV5(settings);
 
     final placedParts = engine.optimize(parts);
     for (final p in placedParts) {
