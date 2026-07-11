@@ -86,15 +86,19 @@ class NestingEngineV5 {
       }
 
       if (usedNode.y + usedNode.height < freeRect.y + freeRect.height) {
-        freeRects.add(
-          FreeRect(
-            x: freeRect.x,
-            y: usedNode.y + usedNode.height,
-            width: freeRect.width,
-            height:
-                freeRect.y + freeRect.height - (usedNode.y + usedNode.height),
-          ),
-        );
+        final newY = usedNode.y + usedNode.height + settings.partSpacing;
+        final newHeight = freeRect.y + freeRect.height - newY;
+
+        if (newHeight > 0) {
+          freeRects.add(
+            FreeRect(
+              x: freeRect.x,
+              y: newY,
+              width: freeRect.width,
+              height: newHeight,
+            ),
+          );
+        }
       }
     }
 
@@ -112,14 +116,19 @@ class NestingEngineV5 {
       }
 
       if (usedNode.x + usedNode.width < freeRect.x + freeRect.width) {
-        freeRects.add(
-          FreeRect(
-            x: usedNode.x + usedNode.width,
-            y: freeRect.y,
-            width: freeRect.x + freeRect.width - (usedNode.x + usedNode.width),
-            height: freeRect.height,
-          ),
-        );
+        final newX = usedNode.x + usedNode.width + settings.partSpacing;
+        final newWidth = freeRect.x + freeRect.width - newX;
+
+        if (newWidth > 0) {
+          freeRects.add(
+            FreeRect(
+              x: newX,
+              y: freeRect.y,
+              width: newWidth,
+              height: freeRect.height,
+            ),
+          );
+        }
       }
     }
 
