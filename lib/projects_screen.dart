@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 
 import 'edge_band_part.dart';
-import 'parts_entry_screen.dart';
+import 'parts_entry_screen_v2.dart';
 import 'project_model.dart';
 import 'project_settings.dart';
 
@@ -274,7 +274,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PartsEntryScreen(
+                        builder: (_) => PartsEntryScreenV2(
                           settings: settings,
                           initialParts: loadedParts,
                         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'parts_entry_screen.dart';
+
+import 'parts_entry_screen_v2.dart';
 import 'project_settings.dart';
 
 class NewProjectScreen extends StatefulWidget {
@@ -192,7 +193,7 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          PartsEntryScreen(settings: settings),
+                          PartsEntryScreenV2(settings: settings),
                     ),
                   );
                 },
