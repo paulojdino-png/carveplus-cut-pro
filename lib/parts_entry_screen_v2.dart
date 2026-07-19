@@ -601,8 +601,12 @@ class _PartsEntryScreenV2State extends State<PartsEntryScreenV2> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      row.allowRotation = !row.allowRotation;
-                      _hasUnsavedChanges = true;
+                      row.top = top;
+                      row.right = right;
+                      row.bottom = bottom;
+                      row.left = left;
+
+                      _markDirty();
                     });
 
                     Navigator.pop(context);
@@ -709,10 +713,8 @@ class _PartsEntryScreenV2State extends State<PartsEntryScreenV2> {
               borderRadius: BorderRadius.circular(6),
               onTap: () {
                 setState(() {
-                  setState(() {
-                    row.allowRotation = !row.allowRotation;
-                    _hasUnsavedChanges = true;
-                  });
+                  row.allowRotation = !row.allowRotation;
+                  _markDirty();
                 });
               },
               child: Center(
