@@ -1,5 +1,5 @@
 name: carveplus_cut_pro
-description: "A new Flutter project."
+description: "Professional nesting and cut optimization software for cabinet makers and CNC woodworking professionals."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -36,6 +36,7 @@ dependencies:
   printing: ^5.13.4
   share_plus: ^10.0.2
   file_picker: ^10.3.2
+  shared_preferences: ^2.5.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
