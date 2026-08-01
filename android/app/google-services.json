@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "345939693563",
+    "project_id": "carveplus-cut-pro",
+    "storage_bucket": "carveplus-cut-pro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345939693563:android:8dd99cab96b53ee68e055e",
+        "android_client_info": {
+          "package_name": "com.example.carveplus_cut_pro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa6bp59TYe4nggCLgGWMkEXSgC951LIaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

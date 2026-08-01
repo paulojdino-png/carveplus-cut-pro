@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'parts_entry_screen_v2.dart';
 import 'project_settings.dart';
+import 'services/analytics_service.dart';
 
 class NewProjectScreen extends StatefulWidget {
   const NewProjectScreen({super.key});
@@ -189,6 +190,8 @@ class _NewProjectScreenState extends State<NewProjectScreen> {
                     allowRotation: true,
                     woodGrain: false,
                   );
+                  AnalyticsService.projectCreated();
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -1,40 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dashboard_screen.dart';
-import 'onboarding_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAnalytics.instance.logAppOpen();
+
+  debugPrint("✅ Firebase initialized successfully");
   runApp(const CarveplusApp());
 }
 
 class CarveplusApp extends StatelessWidget {
   const CarveplusApp({super.key});
 
-  Future<bool> _hasCompletedOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('onboardingCompleted') ?? false;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: FutureBuilder<bool>(
-        future: _hasCompletedOnboarding(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          return snapshot.data!
-              ? const DashboardScreen()
-              : const OnboardingScreen();
-        },
-      ),
+      home: DashboardScreen(),
     );
   }
 }
